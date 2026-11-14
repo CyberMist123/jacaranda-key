@@ -61,12 +61,15 @@ Click the puzzle icon 🧩 in the toolbar → find **Jacaranda Key** → click t
 
 ## FAQ
 
-**Is it still there after I restart the browser or computer?**
-Yes. The extension stays installed as long as the folder isn't deleted or moved.
-**Your sign-in does not survive a restart, though.** After restarting the browser, USYD will usually ask you to sign in again; the extension then keeps that session alive.
+**Do I have to sign in again after restarting the browser or computer?**
+Usually not. The extension keeps your USYD sign-in cookies for 400 days, so you can pick up where you left off.
+If the browser was closed long enough for USYD's session to expire, you'll need to sign in once more — the extension then keeps that session alive.
+The extension itself stays installed as long as the folder isn't deleted or moved.
 
 **Does it work in Incognito?**
-Not by default — it doesn't run in Incognito windows. Even if you turn on "Allow in Incognito", the 18-minute refresh only applies to sessions in normal windows, not Incognito ones.
+Yes, but you need to switch it on (Chrome doesn't run extensions in Incognito by default):
+`chrome://extensions` → Jacaranda Key → **Details** → turn on **Allow in Incognito**.
+After that, sign-ins in Incognito windows are refreshed every 18 minutes too. When you close all Incognito windows, those sign-ins are cleared as usual — the extension doesn't keep them.
 
 **"We are sorry that we cannot complete your request" after using the proxy?**
 OpenAthens doesn't recognise the site: either the USYD Library doesn't provide that resource through OpenAthens, or the page isn't a resource page (e.g. a sign-in page).
@@ -95,11 +98,12 @@ Download the new version → overwrite the files in your folder → open `chrome
   - `canvas.sydney.edu.au` (checks whether Canvas is signed in)
   - library proxy pages you already have open on `*.proxy.openathens.net` (keep-alive)
 - On web pages it only does two things: ticks "Keep me signed in" on the Okta sign-in page, and selects the UniKey option on OpenAthens.
-- Permissions requested: `alarms` (timer), `storage` (last refresh result), `activeTab` (read the current page's URL when you click the button), plus access to the sites above.
+- It only changes how long `sso.sydney.edu.au`'s own sign-in cookies are kept (so they survive a browser restart). It doesn't read their contents or send them anywhere. Incognito cookies are left alone.
+- Permissions requested: `alarms` (timer), `storage` (last refresh result), `activeTab` (read the current page's URL when you click the button), `cookies` (the point above), plus access to the sites above.
 
 **Things to be aware of**
 
-- **A longer session also means anyone using your computer can get into your account more easily.** Don't install it on public or shared computers, and lock your own computer with a password.
+- **A longer session also means anyone using your computer can get into your account more easily.** Your sign-in survives closing the browser, so don't install it on public or shared computers, and lock your own computer with a password. To sign out completely, use "Sign out" on the USYD site.
 - Unpacked extensions **don't auto-update**. Upside: nobody (including the author) can push changes to your computer. Downside: you need to download new versions yourself.
 - **Only download from this repository.** Re-uploaded copies may have been modified. To check, open the `.js` files in a text editor and search for `http` — every URL should belong to `sydney.edu.au`, `openathens.net` or `exlibrisgroup.com`.
 
@@ -118,10 +122,14 @@ icons/  docs/          images
 
 ## Disclaimer
 
-- This project is **for personal study use only**. It is not affiliated with, or endorsed by, the University of Sydney.
-- **Use only your own UniKey. Do not lend your account to anyone or sign in on someone else's behalf.** USYD's [Acceptable Use of ICT Resources Policy](https://www.sydney.edu.au/policies/a-to-z-policy/acceptable-use-of-ict-resources-policy.html) states that you are responsible for all activity from your University accounts.
-- You must follow the University's policies and the terms of use of library e-resources. Whether tools like this are permitted is determined by the University's current policies — please check them yourself.
-- This software is provided "as is", without warranty of any kind. Features may stop working if the University changes its systems. **You use this extension at your own risk; the author accepts no liability for any consequences of its use.**
+A few small words, meow 🐾
+
+- This is a little tool a student made **for their own studying**. It has nothing to do with the University of Sydney, and the University has never given it a stamp of approval.
+- **Please keep your UniKey to yourself — don't lend it out or sign in for anyone else.** USYD's [Acceptable Use of ICT Resources Policy](https://www.sydney.edu.au/policies/a-to-z-policy/acceptable-use-of-ict-resources-policy.html) says you are responsible for all activity from your University accounts.
+- When using this extension, we suggest following the University of Sydney's policies and the terms of use for library e-resources~
+- It comes to you "as is": no warranty, and it may suddenly stop working whenever the University updates its systems. Whatever happens when you use it is on you — the author can't cover for you. Thanks for understanding, meow.
+
+(The formal version: this software is provided "as is", without warranty of any kind, express or implied; you use it at your own risk.)
 
 ## License
 

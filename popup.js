@@ -37,16 +37,72 @@ function whyNotProxyable(url) {
   return '';
 }
 
+// ---------------- 彩蛋：连点标题 4 下切换「平静生活」模式 ----------------
+// 紫绿撞色 + 一句致敬某位只想过平静生活的上班族的语录（每次打开随机一句）
+
+// 平时的底部文字取 popup.html 里写的那句（本机版会换掉它）
+const FOOTER_NORMAL = document.getElementById('footer').textContent;
+const QUIET_LIFE = [
+  '我只想过平静的生活，不想每天重新登录 Canvas。',
+  '我的名字叫 Jacaranda Key，住在浏览器右上角，未婚。',
+  '每 18 分钟续一次期，决不把重新登录留到第二天。',
+  '我不存密码，cookie 也仅止于 400 天。',
+  '睡前喝一杯温牛奶，再帮你续一次期。',
+  '医生都说我的登录状态很正常。',
+  '我不喜欢争斗，也不喜欢 Okta 验证码。',
+  '平静的生活，就是 Canvas 永不掉线。',
+];
+
+const isKira = () => document.body.classList.contains('kira');
+
+function applyKira(on) {
+  document.body.classList.toggle('kira', on);
+  const quote = QUIET_LIFE[Math.floor(Math.random() * QUIET_LIFE.length)];
+  document.getElementById('footer').textContent = on ? `「${quote}」` : FOOTER_NORMAL;
+  document.getElementById('refreshNowBtn').textContent = on ? '续一下，保持平静' : '立即续期';
+}
+
+function toast(text) {
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+async function setupEasterEgg() {
+  const { kiraMode } = await chrome.storage.local.get('kiraMode');
+  applyKira(!!kiraMode);
+
+  let clicks = [];
+  document.getElementById('title').addEventListener('click', async () => {
+    const now = Date.now();
+    clicks = clicks.filter((t) => now - t < 1500).concat(now);
+    if (clicks.length < 4) return;
+    clicks = [];
+    const on = !isKira();
+    applyKira(on);
+    await chrome.storage.local.set({ kiraMode: on });
+    toast(on ? '平静生活模式：开启' : '平静生活模式：关闭');
+  });
+}
+
 async function initPopup() {
-  const { keepAliveState } = await chrome.storage.local.get('keepAliveState');
-  renderState(keepAliveState);
+  // 无痕窗口里的弹窗读无痕那份后台写的状态（manifest: incognito = split）
+  const key = chrome.extension.inIncognitoContext ? 'keepAliveStateIncognito' : 'keepAliveState';
+  const stored = await chrome.storage.local.get(key);
+  renderState(stored[key]);
+
+  await setupEasterEgg();
 
   const refreshBtn = document.getElementById('refreshNowBtn');
   refreshBtn.addEventListener('click', async () => {
     refreshBtn.textContent = '续期中…';
     const resp = await chrome.runtime.sendMessage({ type: 'RUN_KEEPALIVE_NOW' });
     if (resp?.state) renderState(resp.state);
-    refreshBtn.textContent = '已续期 · 之后每 18 分钟自动续';
+    refreshBtn.textContent = isKira()
+      ? '续好了，今天也是平静的一天'
+      : '已续期 · 之后每 18 分钟自动续';
   });
 
   // 点开弹窗时 activeTab 授权当前标签页，才能读到它的网址
