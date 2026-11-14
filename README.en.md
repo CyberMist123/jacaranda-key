@@ -13,8 +13,6 @@ A small Chrome extension for University of Sydney (USYD) students. It does two t
 
 > For personal study use only. Not affiliated with the University of Sydney. Please read the [Disclaimer](#disclaimer) before use.
 
-> The extension's interface is in Chinese. The buttons, top to bottom: *Open current page via library proxy*, *Refresh now*, then the four shortcuts.
-
 ---
 
 ## Install (about 3 minutes)
@@ -46,16 +44,18 @@ Click the puzzle icon 🧩 in the toolbar → find **Jacaranda Key** → click t
 ### 5. Check it works
 
 1. Sign in to Canvas once as usual (https://canvas.sydney.edu.au)
-2. Click the extension icon → click 立即续期 (*Refresh now*)
+2. Click the extension icon → click **Refresh now**
 3. The badge shows **ON** while your session is being kept alive. **EXP** means you are not signed in — just sign in once.
 
 ---
 
 ## Usage
 
-- **Hit a paywall?** On that page, click the extension icon → 用图书馆代理打开当前页 (*Open via library proxy*). The first time, you'll be asked to sign in with your UniKey (the extension picks the UniKey option for you).
+- **Hit a paywall?** On that page, click the extension icon → **Open this page via the library**. The first time, you'll be asked to sign in with your UniKey (the extension picks the UniKey option for you).
   - On USYD's own pages (Canvas, the Okta sign-in page, the library site) the button is greyed out — those pages don't need the proxy.
 - **Shortcuts:** the four links at the bottom open in a new tab.
+- **Language:** click the gear ⚙ in the top-right of the popup to pick 中文, English or 日本語, or follow your browser (default).
+- The status is re-checked every time you open the popup; double-click the status card to re-check manually.
 
 ---
 
@@ -78,7 +78,7 @@ OpenAthens doesn't recognise the site: either the USYD Library doesn't provide t
 You selected the wrong folder level. Pick the one that **directly contains `manifest.json`**.
 
 **Badge stays on EXP?**
-Sign in to Canvas manually once, then click 立即续期 (*Refresh now*).
+Sign in to Canvas manually once, then click **Refresh now**.
 
 **How do I update?**
 Download the new version → overwrite the files in your folder → open `chrome://extensions` → click the reload icon 🔄 on the Jacaranda Key card.

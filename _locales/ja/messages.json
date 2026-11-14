@@ -1,0 +1,4 @@
+{
+  "extName": { "message": "Jacaranda Key — USYD ログイン維持・図書館アクセス" },
+  "extDesc": { "message": "ブラウザを開いている間、USYD の Okta / Canvas のログインを 18 分ごとに更新し、USYD 図書館のプロキシ経由でページをワンクリックで開き直します。パスワードは保存しません。" }
+}

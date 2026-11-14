@@ -64,7 +64,7 @@
 
     [hidden] { display: none !important; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { background: var(--bg-solid); }
+    html { background: var(--bg-solid); overflow-x: hidden; }
     body {
       width: 320px;
       padding: 16px;
@@ -88,6 +88,15 @@
       user-select: none;
     }
     #lastRun { margin-left: auto; font-size: 11px; color: var(--muted); }
+    .icon-btn { display: grid; place-items: center; width: 26px; height: 26px; margin-right: -4px; border-radius: 8px; color: var(--muted); }
+    .icon-btn:hover { color: var(--accent); background: var(--accent-soft); }
+
+    .settings-card { padding: 4px 14px 14px; }
+    .label { padding-top: 10px; font-size: 13px; font-weight: 600; }
+    .langs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .lang-opt { height: 34px; border-radius: 10px; background: var(--soft); box-shadow: var(--shadow); }
+    .lang-opt:hover { color: var(--accent); }
+    .lang-opt.active { background: var(--btn); color: var(--accent-fg); font-weight: 600; }
 
     /* 卡片：不画边框，只用一层很淡的阴影 */
     .card {
@@ -152,7 +161,25 @@
 
     .foot { position: relative; margin-top: 12px; min-height: 26px; display: flex; align-items: center; justify-content: center; }
     footer { text-align: center; font-size: 11px; color: var(--muted); transition: opacity .15s; }
-    body.kira #footer { color: var(--ok); }
+    body.kira #footer { color: var(--ok); cursor: pointer; user-select: none; }
+
+    /* 败者食尘：抖一下 + 闪白 */
+    body.bites #main { animation: jk-shake .45s cubic-bezier(.36, .07, .19, .97); } /* 只抖内容区，不抖 body，免得撑出横向滚动条 */
+    body.bites::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      pointer-events: none;
+      animation: jk-flash .65s ease-out forwards;
+    }
+    @keyframes jk-shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(3px); }
+      30%, 50%, 70% { transform: translateX(-5px); }
+      40%, 60% { transform: translateX(5px); }
+    }
+    @keyframes jk-flash { 0% { opacity: 0; } 25% { opacity: .9; } 100% { opacity: 0; } }
     .foot.toasting #footer { opacity: 0; }
 
     /* 提示：底部原位置的立体字 */
@@ -184,30 +211,50 @@
   <header>
     <img src="icons/icon-48.png" alt="" />
     <h1 id="title">Jacaranda Key</h1>
-    <span id="lastRun">检测中…</span>
+    <span id="lastRun" data-i18n="checking">检测中…</span>
+    <button class="icon-btn" id="settingsBtn" data-i18n-title="settings" title="设置" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+    </button>
   </header>
 
-  <div class="card status" id="statusCard" title="双击重新检测">
-    <div class="row" id="oktaRow"><span class="dot"></span>Okta<span class="state">—</span></div>
-    <div class="row" id="canvasRow"><span class="dot"></span>Canvas<span class="state">—</span></div>
-    <div class="row" id="proxyRow"><span class="dot"></span>图书馆代理页<span class="state">0 个</span></div>
-  </div>
+  <main id="main">
+    <div class="card status" id="statusCard" data-i18n-title="dblclickHint" title="双击重新检测">
+      <div class="row" id="oktaRow"><span class="dot"></span>Okta<span class="state">—</span></div>
+      <div class="row" id="canvasRow"><span class="dot"></span>Canvas<span class="state">—</span></div>
+      <div class="row" id="proxyRow"><span class="dot"></span><span data-i18n="proxyPages">图书馆代理页</span><span class="state">0</span></div>
+    </div>
 
-  <button class="primary" id="proxyCurrentBtn">用图书馆代理打开当前页</button>
-  <button class="secondary" id="refreshNowBtn">立即续期</button>
+    <button class="primary" id="proxyCurrentBtn" data-i18n="proxyBtn">用图书馆代理打开当前页</button>
+    <button class="secondary" id="refreshNowBtn" data-i18n="refresh">立即续期</button>
 
-  <div class="chips">
-    <button class="chip link" data-url="https://sydney.primo.exlibrisgroup.com/view/action/uresolver.do?operation=resolveService&amp;package_service_id=68343842980005106&amp;institutionId=5106&amp;customerId=5105&amp;VE=true">Westlaw AU</button>
-    <button class="chip link" data-url="https://go.openathens.net/redirector/sydney.edu.au?url=https%3A%2F%2Fglobal.factiva.com%2Fsb%2Fdefault.aspx%3Flnep%3Dhp">Factiva</button>
-    <button class="chip link" data-url="https://sydney.primo.exlibrisgroup.com/discovery/search?vid=61USYD_INST:sydney">图书馆检索</button>
-    <button class="chip link" data-url="https://canvas.sydney.edu.au/">Canvas</button>
-  </div>
+    <div class="chips">
+      <button class="chip link" data-url="https://sydney.primo.exlibrisgroup.com/view/action/uresolver.do?operation=resolveService&amp;package_service_id=68343842980005106&amp;institutionId=5106&amp;customerId=5105&amp;VE=true">Westlaw AU</button>
+      <button class="chip link" data-url="https://go.openathens.net/redirector/sydney.edu.au?url=https%3A%2F%2Fglobal.factiva.com%2Fsb%2Fdefault.aspx%3Flnep%3Dhp">Factiva</button>
+      <button class="chip link" data-url="https://sydney.primo.exlibrisgroup.com/discovery/search?vid=61USYD_INST:sydney" data-i18n="libSearch">图书馆检索</button>
+      <button class="chip link" data-url="https://canvas.sydney.edu.au/">Canvas</button>
+    </div>
 
-  <div class="foot">
-    <footer id="footer">不存储任何账号密码 · 非悉尼大学官方工具</footer>
-    <div id="toast"></div>
-  </div>
+    <div class="foot">
+      <footer id="footer" data-i18n="footer">不存储任何账号密码 · 非悉尼大学官方工具</footer>
+      <div id="toast"></div>
+    </div>
+  </main>
 
+  <section id="settings" hidden>
+    <div class="card settings-card">
+      <div class="label" data-i18n="language">语言</div>
+      <div class="langs">
+        <button class="lang-opt" data-lang="auto" data-i18n="langAuto">跟随浏览器</button>
+        <button class="lang-opt" data-lang="zh">中文</button>
+        <button class="lang-opt" data-lang="en">English</button>
+        <button class="lang-opt" data-lang="ja">日本語</button>
+      </div>
+    </div>
+    <button class="secondary" id="backBtn" data-i18n="back">返回</button>
+  </section>
+
+  <script src="i18n.js"></script>
+  <script src="quiet-life.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

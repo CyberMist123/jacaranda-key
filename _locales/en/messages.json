@@ -1,0 +1,4 @@
+{
+  "extName": { "message": "Jacaranda Key — USYD stay signed in & library access" },
+  "extDesc": { "message": "Keeps your USYD Okta / Canvas sign-in alive while the browser is open, and reopens pages through the USYD Library proxy in one click. Stores no passwords." }
+}

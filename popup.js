@@ -1,70 +1,53 @@
+// 弹窗。界面文字见 i18n.js（t()），彩蛋语录见 quiet-life.js。
+
+const $ = (id) => document.getElementById(id);
+
 function setRow(id, on, text) {
-  const row = document.getElementById(id);
+  const row = $(id);
   row.dataset.on = on ? '1' : '0';
   row.querySelector('.state').textContent = text;
 }
 
 function renderState(state) {
-  const lastRun = document.getElementById('lastRun');
   if (!state) {
-    lastRun.textContent = '尚未运行';
+    $('lastRun').textContent = t('notRun');
     return;
   }
-
-  setRow('oktaRow', state.oktaActive, state.oktaActive ? '保持中' : '未登录');
-  setRow('canvasRow', state.canvasActive, state.canvasActive ? '保持中' : '未登录');
+  setRow('oktaRow', state.oktaActive, t(state.oktaActive ? 'on' : 'off'));
+  setRow('canvasRow', state.canvasActive, t(state.canvasActive ? 'on' : 'off'));
   const n = state.proxiedOriginsCount || 0;
-  setRow('proxyRow', n > 0, `${n} 个`);
+  setRow('proxyRow', n > 0, t('count', { n }));
 
   if (state.lastRunAt) {
     const dt = new Date(state.lastRunAt);
-    const hh = String(dt.getHours()).padStart(2, '0');
-    const mm = String(dt.getMinutes()).padStart(2, '0');
-    lastRun.textContent = `${hh}:${mm} 已续期`;
+    const time = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+    $('lastRun').textContent = t('lastRun', { time });
   }
 }
 
-// 返回不能走代理的原因；能走则返回空字符串。
+// 不能走代理的原因（i18n 键名）；能走则返回空字符串。
 // 悉大自己的网站、已经在代理里的页面、浏览器内部页都不需要（也没法）再套一层代理，
 // 否则 OpenAthens 会报 "cannot complete your request"。
 function whyNotProxyable(url) {
   let u;
-  try { u = new URL(url || ''); } catch { return '当前页无法代理'; }
-  if (!/^https?:$/.test(u.protocol)) return '当前页无法代理';
+  try { u = new URL(url || ''); } catch { return 'cannotProxy'; }
+  if (!/^https?:$/.test(u.protocol)) return 'cannotProxy';
   const h = u.hostname;
   const own = ['sydney.edu.au', 'openathens.net', 'exlibrisgroup.com', 'instructure.com'];
-  if (own.some((d) => h === d || h.endsWith('.' + d))) return '悉大或图书馆页面，无需代理';
+  if (own.some((d) => h === d || h.endsWith('.' + d))) return 'ownSite';
   return '';
 }
 
-// ---------------- 彩蛋：连点标题 4 下切换「平静生活」模式 ----------------
-// 紫绿撞色 + 一句致敬某位只想过平静生活的上班族的语录（每次打开随机一句）
-
-// 平时的底部文字取 popup.html 里写的那句（本机版会换掉它）
-const FOOTER_NORMAL = document.getElementById('footer').textContent;
-const QUIET_LIFE = [
-  '我只想过平静的生活，不想每天重新登录 Canvas。',
-  '我的名字叫 Jacaranda Key，住在浏览器右上角，未婚。',
-  '每 18 分钟续一次期，决不把重新登录留到第二天。',
-  '我不存密码，cookie 也仅止于 400 天。',
-  '睡前喝一杯温牛奶，再帮你续一次期。',
-  '医生都说我的登录状态很正常。',
-  '我不喜欢争斗，也不喜欢 Okta 验证码。',
-  '平静的生活，就是 Canvas 永不掉线。',
-];
-
-const isKira = () => document.body.classList.contains('kira');
-
-function applyKira(on) {
-  document.body.classList.toggle('kira', on);
-  const quote = QUIET_LIFE[Math.floor(Math.random() * QUIET_LIFE.length)];
-  document.getElementById('footer').textContent = on ? `「${quote}」` : FOOTER_NORMAL;
-  document.getElementById('refreshNowBtn').textContent = on ? '续一下，保持平静' : '立即续期';
+// 存下来的状态可能是几分钟前的（比如刚登录完），所以一打开就静默重查一次；双击状态卡片也会重查。
+async function refreshStatus() {
+  $('lastRun').textContent = t('checking');
+  const resp = await chrome.runtime.sendMessage({ type: 'RUN_KEEPALIVE_NOW' });
+  if (resp?.state) renderState(resp.state);
 }
 
 // 提示：在底部原位置显示一行立体字，盖住底部文字一会儿再换回来（不会和别的内容重叠）
 function toast(text) {
-  const el = document.getElementById('toast');
+  const el = $('toast');
   const wrap = el.parentElement;
   el.textContent = text;
   el.classList.add('show');
@@ -76,57 +59,133 @@ function toast(text) {
   }, 1800);
 }
 
+// ---------------- 彩蛋：连点标题 4 下切换「平静生活」模式 ----------------
+// 紫绿撞色 + 底部语录。单击语录换一句（先按顺序，再随机）；连点 3 下发动「败者食尘」回到普通界面。
+
+const isKira = () => document.body.classList.contains('kira');
+let quoteIdx = 0; // 已经出到第几句，存在 storage，下次打开接着来
+
+function showQuote(text) {
+  $('footer').textContent = LANG === 'en' ? `“${text}”` : `「${text}」`; // 英文用弯引号，中日用「」
+}
+
+async function nextQuote() {
+  showQuote(quietLineAt(quoteIdx));
+  quoteIdx += 1;
+  await chrome.storage.local.set({ quoteIdx });
+}
+
+async function applyKira(on, { opening = false } = {}) {
+  document.body.classList.toggle('kira', on);
+  $('refreshNowBtn').textContent = t(on ? 'kiraRefresh' : 'refresh');
+  if (!on) {
+    $('footer').textContent = t($('footer').dataset.i18n);
+    return;
+  }
+  const timed = opening ? quietLineForTime() : null;
+  if (timed) showQuote(timed);
+  else await nextQuote();
+}
+
+function bitesTheDust() {
+  document.body.classList.remove('bites');
+  void document.body.offsetWidth; // 让动画可以连续触发
+  document.body.classList.add('bites');
+  setTimeout(async () => {
+    document.body.classList.remove('bites');
+    await applyKira(false); // 回到原来的普通界面，就像什么都没发生过
+    await chrome.storage.local.set({ kiraMode: false });
+    document.querySelectorAll('details[open]').forEach((d) => { d.open = false; });
+    window.scrollTo(0, 0);
+    refreshStatus();
+  }, 650);
+}
+
 async function setupEasterEgg() {
-  const { kiraMode } = await chrome.storage.local.get('kiraMode');
-  applyKira(!!kiraMode);
+  const stored = await chrome.storage.local.get(['kiraMode', 'quoteIdx']);
+  quoteIdx = Number(stored.quoteIdx) || 0;
+  await applyKira(!!stored.kiraMode, { opening: true });
 
   let clicks = [];
-  document.getElementById('title').addEventListener('click', async () => {
+  $('title').addEventListener('click', async () => {
     const now = Date.now();
-    clicks = clicks.filter((t) => now - t < 1500).concat(now);
+    clicks = clicks.filter((x) => now - x < 1500).concat(now);
     if (clicks.length < 4) return;
     clicks = [];
     const on = !isKira();
-    applyKira(on);
+    await applyKira(on);
     await chrome.storage.local.set({ kiraMode: on });
-    toast(on ? '平静生活模式：开启' : '平静生活模式：关闭');
+    toast(t(on ? 'kiraOn' : 'kiraOff'));
+  });
+
+  // 语录：event.detail 是连击次数。1 = 换一句；2 = 预兆台词；3 = 败者食尘
+  $('footer').addEventListener('click', (e) => {
+    if (!isKira()) return;
+    if (e.detail >= 3) {
+      showQuote(quietLife().bites);
+      bitesTheDust();
+    } else if (e.detail === 2) {
+      const warn = quietLife().warn;
+      showQuote(warn[Math.floor(Math.random() * warn.length)]);
+    } else {
+      nextQuote();
+    }
   });
 }
 
+// ---------------- 设置（语言） ----------------
+
+async function setupSettings() {
+  const { lang = 'auto' } = await chrome.storage.local.get('lang');
+  for (const opt of document.querySelectorAll('.lang-opt')) {
+    opt.classList.toggle('active', opt.dataset.lang === lang);
+    opt.addEventListener('click', async () => {
+      await chrome.storage.local.set({ lang: opt.dataset.lang });
+      sessionStorage.setItem('jk_open_settings', '1'); // 重新载入后停在设置页
+      location.reload();
+    });
+  }
+  const show = (on) => {
+    $('main').hidden = on;
+    $('settings').hidden = !on;
+  };
+  $('settingsBtn').addEventListener('click', () => show($('settings').hidden));
+  $('backBtn').addEventListener('click', () => show(false));
+  if (sessionStorage.getItem('jk_open_settings')) {
+    sessionStorage.removeItem('jk_open_settings');
+    show(true);
+  }
+}
+
+// ---------------- 初始化 ----------------
+
 async function initPopup() {
+  await I18N_READY;
+
   // 无痕窗口里的弹窗读无痕那份后台写的状态（manifest: incognito = split）
   const key = chrome.extension.inIncognitoContext ? 'keepAliveStateIncognito' : 'keepAliveState';
   const stored = await chrome.storage.local.get(key);
   renderState(stored[key]);
 
   await setupEasterEgg();
-
-  // 存下来的状态可能是几分钟前的（比如刚登录完），所以一打开就静默重查一次；
-  // 双击状态卡片也会重查。
-  async function refreshStatus() {
-    document.getElementById('lastRun').textContent = '检测中…';
-    const resp = await chrome.runtime.sendMessage({ type: 'RUN_KEEPALIVE_NOW' });
-    if (resp?.state) renderState(resp.state);
-  }
+  await setupSettings();
   refreshStatus();
-  document.getElementById('statusCard').addEventListener('dblclick', refreshStatus);
+  $('statusCard').addEventListener('dblclick', refreshStatus);
 
-  const refreshBtn = document.getElementById('refreshNowBtn');
+  const refreshBtn = $('refreshNowBtn');
   refreshBtn.addEventListener('click', async () => {
-    refreshBtn.textContent = '续期中…';
+    refreshBtn.textContent = t('refreshing');
     await refreshStatus();
-    refreshBtn.textContent = isKira()
-      ? '续好了，今天也是平静的一天'
-      : '已续期 · 之后每 18 分钟自动续';
+    refreshBtn.textContent = t(isKira() ? 'kiraRefreshed' : 'refreshed');
   });
 
   // 点开弹窗时 activeTab 授权当前标签页，才能读到它的网址
-  const proxyBtn = document.getElementById('proxyCurrentBtn');
+  const proxyBtn = $('proxyCurrentBtn');
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const reason = whyNotProxyable(tab?.url);
   if (reason) {
     proxyBtn.disabled = true;
-    proxyBtn.textContent = reason;
+    proxyBtn.textContent = t(reason);
   }
   proxyBtn.addEventListener('click', async () => {
     if (reason) return;
