@@ -38,21 +38,32 @@ function whyNotProxyable(url) {
   return '';
 }
 
-// true = OpenAthens 明确说不认识这个资源；查不到（断网、超时）就当认识，照常跳转
+// true = OpenAthens 明确说不认识这个资源；查不到（断网、超时）就当认识，照常跳转。
+// - 不跟随跳转（redirect: 'manual'）：OpenAthens 要把你转去出版商网站，本身就说明它认识；预检也就不会去请求出版商网站。
+// - OpenAthens 第一次见到一个网址时，先回一个「OpenAthens / Please wait...」过渡页（200），
+//   过一会儿再问才是真正的结果。所以遇到过渡页就隔 0.7 秒再问，总共最多 8 秒。
+// - 网络出错重试一次，再不行才放行。
 async function libraryDoesNotKnow(target) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8000);
-  try {
-    const resp = await fetch(target, { credentials: 'omit', cache: 'no-store', signal: controller.signal });
-    if (!resp.url.startsWith('https://go.openathens.net/')) return false; // 已经被转走 = 认识
-    if (resp.status === 404) return true;
-    const html = await resp.text();
-    return /<title>\s*OpenAthens:\s*404|not aware of the resource/i.test(html);
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timer);
+  const deadline = Date.now() + 8000;
+  let networkErrors = 0;
+  while (Date.now() < deadline) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), Math.max(500, deadline - Date.now()));
+    try {
+      const resp = await fetch(target, { credentials: 'omit', cache: 'no-store', redirect: 'manual', signal: controller.signal });
+      if (resp.type === 'opaqueredirect') return false; // 要转走 = 认识
+      if (resp.status === 404) return true;
+      const html = await resp.text();
+      if (/<title>\s*OpenAthens:\s*404|not aware of the resource/i.test(html)) return true;
+      if (!/<title>\s*OpenAthens\s*\/\s*Please wait/i.test(html)) return false; // 其它 200 = 认识
+    } catch (e) {
+      if (e.name === 'AbortError' || ++networkErrors >= 2) return false;
+    } finally {
+      clearTimeout(timer);
+    }
+    await new Promise((r) => setTimeout(r, 700)); // 过渡页或网络错误：稍等再问
   }
+  return false;
 }
 
 // 存下来的状态可能是几分钟前的（比如刚登录完），所以一打开就静默重查一次；双击状态卡片也会重查。

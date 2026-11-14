@@ -5,7 +5,7 @@
 给悉尼大学（USYD）学生用的 Chrome 小插件，只做两件事：
 
 1. **少掉线**：浏览器开着时，每 18 分钟续一次 Okta / Canvas 登录；在 Okta 登录页自动勾上「保持登录」。
-2. **图书馆直通**：在期刊、新闻等外部网站上点一下，用悉大图书馆的 OpenAthens 通道重新打开当前页。另有 Westlaw AU、Factiva、图书馆检索、Canvas 四个快捷入口。
+2. **图书馆直通**：在期刊、新闻等外部网站上点一下，用悉大图书馆的 OpenAthens 通道重新打开当前页。另有 Westlaw AU、Factiva、图书馆检索、Canvas 四个快捷入口；打开图书馆检索（Primo）时会自动用 UniKey 登录。
 
 **不存储、不读取、不填写任何账号、密码或验证码。**
 
@@ -98,7 +98,7 @@
   - `canvas.sydney.edu.au`（检查 Canvas 是否在线）
   - 你已打开的 `*.proxy.openathens.net` 图书馆代理页（续期）
   - `go.openathens.net`（只在你点「用图书馆代理打开当前页」时：带上当前页面的网址，先问一下图书馆有没有这个资源；不带 cookie）
-- 在网页上只做两个动作：Okta 登录页勾上「保持登录」；OpenAthens 页面点选 UniKey 通道。
+- 在网页上只做三个动作：Okta 登录页勾上「保持登录」；OpenAthens 页面点选 UniKey 通道；图书馆检索（Primo）没登录时点「Sign in → UniKey」（你在 Primo 里点了「Sign out」后，12 小时内所有标签页都不会自动登录，你自己再点 Sign in 就恢复；同一个标签页 10 分钟内最多自动登录一次）。
 - 只改 `sso.sydney.edu.au` 这一个网站的登录 cookie 的保存时间（让它撑过浏览器重启），不读取 cookie 内容，也不发往别处。无痕窗口的 cookie 不动。
 - 申请的权限：`alarms`（定时）、`storage`（保存上次续期的结果）、`activeTab`（点按钮时读取当前页面的网址）、`cookies`（上面那条），以及上面几个网站的访问权限。
 
@@ -115,6 +115,7 @@ manifest.json          插件配置
 background.js          每 18 分钟续期
 content-okta.js        只勾「保持登录」
 content-openathens.js  在 OpenAthens 页面自动选 UniKey
+content-primo.js       图书馆检索没登录时点 Sign in → UniKey
 popup.html / popup.js  弹窗
 icons/  docs/          图片
 ```

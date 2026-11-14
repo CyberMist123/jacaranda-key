@@ -5,7 +5,7 @@
 A small Chrome extension for University of Sydney (USYD) students. It does two things:
 
 1. **Fewer sign-outs** — while your browser is open, it refreshes your Okta / Canvas session every 18 minutes, and ticks "Keep me signed in" on the Okta sign-in page.
-2. **Library access in one click** — on a journal or news site, reopen the current page through the USYD Library's OpenAthens proxy. Shortcuts to Westlaw AU, Factiva, Library Search and Canvas are included.
+2. **Library access in one click** — on a journal or news site, reopen the current page through the USYD Library's OpenAthens proxy. Shortcuts to Westlaw AU, Factiva, Library Search and Canvas are included, and Library Search (Primo) signs you in with your UniKey automatically.
 
 **It never stores, reads or fills in any username, password or verification code.**
 
@@ -98,7 +98,7 @@ Download the new version → overwrite the files in your folder → open `chrome
   - `canvas.sydney.edu.au` (checks whether Canvas is signed in)
   - library proxy pages you already have open on `*.proxy.openathens.net` (keep-alive)
   - `go.openathens.net` (only when you click "Open this page via the library": it sends the current page's URL to check whether the library has it; no cookies)
-- On web pages it only does two things: ticks "Keep me signed in" on the Okta sign-in page, and selects the UniKey option on OpenAthens.
+- On web pages it only does three things: ticks "Keep me signed in" on the Okta sign-in page, selects the UniKey option on OpenAthens, and clicks "Sign in → UniKey" on Library Search (Primo) when you are signed out (if you click "Sign out" in Primo, no tab signs you back in for 12 hours, until you click Sign in yourself; at most once per tab every 10 minutes).
 - It only changes how long `sso.sydney.edu.au`'s own sign-in cookies are kept (so they survive a browser restart). It doesn't read their contents or send them anywhere. Incognito cookies are left alone.
 - Permissions requested: `alarms` (timer), `storage` (last refresh result), `activeTab` (read the current page's URL when you click the button), `cookies` (the point above), plus access to the sites above.
 
@@ -115,6 +115,7 @@ manifest.json          extension config
 background.js          refresh every 18 minutes
 content-okta.js        ticks "Keep me signed in" only
 content-openathens.js  picks UniKey on OpenAthens
+content-primo.js       clicks Sign in → UniKey on Library Search
 popup.html / popup.js  popup
 icons/  docs/          images
 ```

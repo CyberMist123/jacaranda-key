@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "permissions": [
@@ -50,6 +50,15 @@
       ],
       "js": [
         "content-openathens.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://sydney.primo.exlibrisgroup.com/*"
+      ],
+      "js": [
+        "content-primo.js"
       ],
       "run_at": "document_idle"
     }
