@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Jacaranda Key — USYD 防掉线与图书馆直通",
+  "version": "1.2.0",
+  "description": "开着浏览器时每 18 分钟续一次 USYD Okta / Canvas 登录，并可一键用悉大图书馆代理打开当前网页。不存储任何账号密码。",
+  "permissions": [
+    "alarms",
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://sso.sydney.edu.au/*",
+    "https://canvas.sydney.edu.au/*",
+    "https://*.openathens.net/*",
+    "https://sydney.primo.exlibrisgroup.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Jacaranda Key",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://sso.sydney.edu.au/*"],
+      "js": ["content-okta.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://login.openathens.net/*"],
+      "js": ["content-openathens.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Jacaranda Key · USYD 防掉线与图书馆直通</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 14px;
+      width: 344px;
+      font: 12.5px/1.48 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #1e293b;
+      background: linear-gradient(155deg, #f0f9ff 0%, #f5f3ff 52%, #faf5ff 100%);
+    }
+    .hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand img {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
+    .hdr h1 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      background: linear-gradient(120deg, #4f46e5, #9333ea);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sub { font-size: 11px; color: #64748b; }
+    .card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(199, 210, 254, 0.7);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.06);
+      border-radius: 11px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+    }
+    .pill {
+      padding: 1.5px 8px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .ok { background: #dcfce7; color: #15803d; }
+    .warn { background: #ede9fe; color: #6d28d9; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 8.5px 10px;
+      border: none;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 7px;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    .btn:active { transform: scale(0.99); }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(99, 102, 241, 0.24);
+    }
+    .btn-primary:hover { filter: brightness(1.05); }
+    .btn-sec {
+      background: rgba(255, 255, 255, 0.85);
+      color: #334155;
+      border: 1px solid rgba(203, 213, 225, 0.8);
+    }
+    .btn-sec:hover { background: #fff; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      padding: 6.5px 8px;
+      border: 1px solid rgba(199, 210, 254, 0.75);
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 8px;
+      font-size: 12px;
+      color: #334155;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .chip:hover { background: #fff; border-color: #a5b4fc; color: #4338ca; }
+  </style>
+</head>
+<body>
+  <div class="hdr">
+    <div class="brand">
+      <img src="icons/icon-48.png" alt="" />
+      <h1>Jacaranda Key · USYD</h1>
+    </div>
+    <span class="sub" id="lastRun">检测中…</span>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span>Okta 登录</span>
+      <span class="pill warn" id="oktaPill">--</span>
+    </div>
+    <div class="row">
+      <span>Canvas 登录</span>
+      <span class="pill warn" id="canvasPill">--</span>
+    </div>
+    <div class="row">
+      <span>已打开的图书馆代理页</span>
+      <span class="sub" id="proxyCount">0 个</span>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="proxyCurrentBtn">📚 用悉大图书馆代理打开当前页</button>
+  <button class="btn btn-sec" id="refreshNowBtn">🔄 立即续期一次</button>
+
+  <div class="grid">
+    <button class="chip" data-url="https://sydney.primo.exlibrisgroup.com/view/action/uresolver.do?operation=resolveService&amp;package_service_id=68343842980005106&amp;institutionId=5106&amp;customerId=5105&amp;VE=true">Westlaw AU 法学</button>
+    <button class="chip" data-url="https://go.openathens.net/redirector/sydney.edu.au?url=https%3A%2F%2Fglobal.factiva.com%2Fsb%2Fdefault.aspx%3Flnep%3Dhp">Factiva 新闻</button>
+    <button class="chip" data-url="https://sydney.primo.exlibrisgroup.com/discovery/search?vid=61USYD_INST:sydney">图书馆检索</button>
+    <button class="chip" data-url="https://canvas.sydney.edu.au/">Canvas 首页</button>
+  </div>
+  <p class="sub" style="margin:10px 2px 0;">不存储任何账号密码 · 个人自制，与悉尼大学官方无关</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>
