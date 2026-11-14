@@ -68,7 +68,7 @@ async function runKeepAliveTick(trigger = 'alarm') {
 
   const on = oktaActive || canvasActive;
   await chrome.action.setBadgeText({ text: on ? 'ON' : 'EXP' });
-  await chrome.action.setBadgeBackgroundColor({ color: on ? '#1b7f4c' : '#c2591b' });
+  await chrome.action.setBadgeBackgroundColor({ color: on ? '#3a7bfd' : '#8e8e93' });
   return state;
 }
 

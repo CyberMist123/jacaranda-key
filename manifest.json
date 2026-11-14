@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Jacaranda Key — USYD 防掉线与图书馆直通",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "开着浏览器时每 18 分钟续一次 USYD Okta / Canvas 登录，并可一键用悉大图书馆代理打开当前网页。不存储任何账号密码。",
   "permissions": [
     "alarms",

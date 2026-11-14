@@ -24,6 +24,19 @@ function renderState(state) {
   }
 }
 
+// 返回不能走代理的原因；能走则返回空字符串。
+// 悉大自己的网站、已经在代理里的页面、浏览器内部页都不需要（也没法）再套一层代理，
+// 否则 OpenAthens 会报 "cannot complete your request"。
+function whyNotProxyable(url) {
+  let u;
+  try { u = new URL(url || ''); } catch { return '当前页无法代理'; }
+  if (!/^https?:$/.test(u.protocol)) return '当前页无法代理';
+  const h = u.hostname;
+  const own = ['sydney.edu.au', 'openathens.net', 'exlibrisgroup.com', 'instructure.com'];
+  if (own.some((d) => h === d || h.endsWith('.' + d))) return '悉大或图书馆页面，无需代理';
+  return '';
+}
+
 async function initPopup() {
   const { keepAliveState } = await chrome.storage.local.get('keepAliveState');
   renderState(keepAliveState);
@@ -37,9 +50,15 @@ async function initPopup() {
   });
 
   // 点开弹窗时 activeTab 授权当前标签页，才能读到它的网址
-  document.getElementById('proxyCurrentBtn').addEventListener('click', async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.url || !/^https?:/.test(tab.url)) return;
+  const proxyBtn = document.getElementById('proxyCurrentBtn');
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const reason = whyNotProxyable(tab?.url);
+  if (reason) {
+    proxyBtn.disabled = true;
+    proxyBtn.textContent = reason;
+  }
+  proxyBtn.addEventListener('click', async () => {
+    if (reason) return;
     const target = `https://go.openathens.net/redirector/sydney.edu.au?url=${encodeURIComponent(tab.url)}`;
     await chrome.tabs.update(tab.id, { url: target });
     window.close();

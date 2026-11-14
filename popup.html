@@ -5,133 +5,185 @@
   <title>Jacaranda Key</title>
   <style>
     :root {
-      --bg: #ffffff;
-      --fg: #1c1c1e;
-      --muted: #8a8a8e;
-      --line: #ececef;
-      --hover: #f5f5f7;
-      --accent: #6a5acd;
-      --accent-fg: #ffffff;
-      --on: #34a853;
-      --off: #c7c7cc;
+      --fg: #16181d;
+      --muted: rgba(22, 24, 29, 0.52);
+      --bg-a: #e8eefb;
+      --bg-b: #f6efe9;
+      --blob-1: rgba(140, 170, 255, 0.55);
+      --blob-2: rgba(255, 196, 170, 0.5);
+      --blob-3: rgba(190, 170, 255, 0.35);
+      --glass: rgba(255, 255, 255, 0.5);
+      --glass-hover: rgba(255, 255, 255, 0.72);
+      --glass-edge: rgba(255, 255, 255, 0.85);
+      --glass-shade: rgba(30, 40, 70, 0.08);
+      --sep: rgba(22, 24, 29, 0.07);
+      --btn: rgba(22, 24, 29, 0.86);
+      --btn-fg: #ffffff;
+      --on: #3a7bfd;
+      --off: rgba(22, 24, 29, 0.2);
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #1c1c1e;
-        --fg: #f2f2f7;
-        --muted: #8e8e93;
-        --line: #2c2c2e;
-        --hover: #2a2a2d;
-        --accent: #9d8fe6;
-        --accent-fg: #1c1c1e;
-        --off: #48484a;
+        --fg: #f3f4f7;
+        --muted: rgba(243, 244, 247, 0.5);
+        --bg-a: #12141c;
+        --bg-b: #1a1622;
+        --blob-1: rgba(70, 110, 255, 0.35);
+        --blob-2: rgba(255, 130, 100, 0.18);
+        --blob-3: rgba(150, 110, 255, 0.25);
+        --glass: rgba(255, 255, 255, 0.07);
+        --glass-hover: rgba(255, 255, 255, 0.12);
+        --glass-edge: rgba(255, 255, 255, 0.16);
+        --glass-shade: rgba(0, 0, 0, 0.3);
+        --sep: rgba(255, 255, 255, 0.07);
+        --btn: rgba(255, 255, 255, 0.9);
+        --btn-fg: #12141c;
+        --on: #6c9cff;
+        --off: rgba(255, 255, 255, 0.22);
       }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg-a); }
     body {
-      width: 300px;
-      background: var(--bg);
+      position: relative;
+      width: 304px;
+      padding: 14px 12px 12px;
       color: var(--fg);
-      font: 13px/1.5 system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font: 13px/1.45 system-ui, -apple-system, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
       -webkit-font-smoothing: antialiased;
+      background: linear-gradient(160deg, var(--bg-a), var(--bg-b));
+      overflow: hidden;
     }
+    /* 背景色块：让玻璃有东西可以折射 */
+    body::before, body::after, .blob {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      border-radius: 50%;
+      filter: blur(36px);
+      pointer-events: none;
+    }
+    body::before { width: 220px; height: 220px; top: -90px; left: -70px; background: var(--blob-1); }
+    body::after  { width: 200px; height: 200px; bottom: -80px; right: -60px; background: var(--blob-2); }
+    .blob        { width: 160px; height: 160px; top: 150px; right: -40px; background: var(--blob-3); }
+    main { position: relative; z-index: 1; }
+
+    .glass {
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(22px) saturate(170%);
+      backdrop-filter: blur(22px) saturate(170%);
+      border: 1px solid var(--glass-edge);
+      border-radius: 18px;
+      box-shadow:
+        inset 0 1px 0 var(--glass-edge),
+        0 8px 24px var(--glass-shade);
+    }
+
     header {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 16px 12px;
+      align-items: baseline;
+      padding: 0 6px 12px;
     }
-    header img { width: 18px; height: 18px; }
-    header h1 { font-size: 13px; font-weight: 600; letter-spacing: 0.1px; }
+    header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.1px; }
     #lastRun { margin-left: auto; font-size: 11px; color: var(--muted); }
 
-    section { padding: 0 16px; }
-    .label {
-      font-size: 11px;
-      color: var(--muted);
-      margin: 14px 0 4px;
-    }
-
+    .status { padding: 4px 14px; }
     .row {
       display: flex;
       align-items: center;
-      height: 30px;
+      height: 34px;
     }
+    .row + .row { border-top: 1px solid var(--sep); }
     .dot {
-      width: 6px; height: 6px;
+      width: 7px; height: 7px;
       border-radius: 50%;
       background: var(--off);
       margin-right: 10px;
+      transition: background .2s, box-shadow .2s;
     }
-    .row[data-on="1"] .dot { background: var(--on); }
+    .row[data-on="1"] .dot { background: var(--on); box-shadow: 0 0 0 3px color-mix(in srgb, var(--on) 22%, transparent); }
     .row .state { margin-left: auto; color: var(--muted); font-size: 12px; }
 
     button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 
     .primary {
       width: 100%;
-      height: 34px;
-      margin-top: 14px;
-      border-radius: 8px;
-      background: var(--accent);
-      color: var(--accent-fg);
+      height: 38px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: var(--btn);
+      color: var(--btn-fg);
       font-weight: 500;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 18px var(--glass-shade);
+      transition: transform .12s, opacity .12s;
     }
-    .primary:hover { filter: brightness(1.06); }
+    .primary:hover { opacity: 0.92; }
+    .primary:active { transform: scale(0.985); }
+    .primary:disabled {
+      background: var(--glass);
+      color: var(--muted);
+      border: 1px solid var(--glass-edge);
+      box-shadow: none;
+      cursor: default;
+      opacity: 1;
+      transform: none;
+    }
     .text-btn {
       display: block;
-      margin: 8px auto 0;
+      margin: 8px auto 10px;
       font-size: 12px;
       color: var(--muted);
     }
     .text-btn:hover { color: var(--fg); }
 
-    .links { border-top: 1px solid var(--line); margin-top: 14px; padding: 6px 8px; }
+    .links { padding: 4px; }
     .link {
       display: flex;
       width: 100%;
       align-items: center;
-      height: 32px;
-      padding: 0 8px;
-      border-radius: 6px;
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 12px;
       text-align: left;
+      transition: background .12s;
     }
-    .link:hover { background: var(--hover); }
+    .link:hover { background: var(--glass-hover); }
     .link::after { content: "↗"; margin-left: auto; color: var(--muted); font-size: 11px; }
-    .link small { color: var(--muted); font-size: 11px; margin-left: 6px; }
 
     footer {
-      border-top: 1px solid var(--line);
-      padding: 10px 16px 12px;
+      padding: 10px 6px 0;
       font-size: 11px;
       color: var(--muted);
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="icons/icon-48.png" alt="" />
-    <h1>Jacaranda Key</h1>
-    <span id="lastRun">检测中…</span>
-  </header>
+  <div class="blob"></div>
+  <main>
+    <header>
+      <h1>Jacaranda Key</h1>
+      <span id="lastRun">检测中…</span>
+    </header>
 
-  <section>
-    <div class="row" id="oktaRow"><span class="dot"></span>Okta<span class="state">—</span></div>
-    <div class="row" id="canvasRow"><span class="dot"></span>Canvas<span class="state">—</span></div>
-    <div class="row" id="proxyRow"><span class="dot"></span>图书馆代理页<span class="state">0 个</span></div>
+    <div class="glass status">
+      <div class="row" id="oktaRow"><span class="dot"></span>Okta<span class="state">—</span></div>
+      <div class="row" id="canvasRow"><span class="dot"></span>Canvas<span class="state">—</span></div>
+      <div class="row" id="proxyRow"><span class="dot"></span>图书馆代理页<span class="state">0 个</span></div>
+    </div>
 
     <button class="primary" id="proxyCurrentBtn">用图书馆代理打开当前页</button>
     <button class="text-btn" id="refreshNowBtn">立即续期</button>
-  </section>
 
-  <div class="links">
-    <button class="link" data-url="https://sydney.primo.exlibrisgroup.com/view/action/uresolver.do?operation=resolveService&amp;package_service_id=68343842980005106&amp;institutionId=5106&amp;customerId=5105&amp;VE=true">Westlaw AU</button>
-    <button class="link" data-url="https://go.openathens.net/redirector/sydney.edu.au?url=https%3A%2F%2Fglobal.factiva.com%2Fsb%2Fdefault.aspx%3Flnep%3Dhp">Factiva</button>
-    <button class="link" data-url="https://sydney.primo.exlibrisgroup.com/discovery/search?vid=61USYD_INST:sydney">图书馆检索</button>
-    <button class="link" data-url="https://canvas.sydney.edu.au/">Canvas</button>
-  </div>
+    <div class="glass links">
+      <button class="link" data-url="https://sydney.primo.exlibrisgroup.com/view/action/uresolver.do?operation=resolveService&amp;package_service_id=68343842980005106&amp;institutionId=5106&amp;customerId=5105&amp;VE=true">Westlaw AU</button>
+      <button class="link" data-url="https://go.openathens.net/redirector/sydney.edu.au?url=https%3A%2F%2Fglobal.factiva.com%2Fsb%2Fdefault.aspx%3Flnep%3Dhp">Factiva</button>
+      <button class="link" data-url="https://sydney.primo.exlibrisgroup.com/discovery/search?vid=61USYD_INST:sydney">图书馆检索</button>
+      <button class="link" data-url="https://canvas.sydney.edu.au/">Canvas</button>
+    </div>
 
-  <footer>不存储任何账号密码 · 非悉尼大学官方工具</footer>
+    <footer>不存储任何账号密码 · 非悉尼大学官方工具</footer>
+  </main>
 
   <script src="popup.js"></script>
 </body>
