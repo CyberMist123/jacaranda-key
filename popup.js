@@ -62,12 +62,18 @@ function applyKira(on) {
   document.getElementById('refreshNowBtn').textContent = on ? '续一下，保持平静' : '立即续期';
 }
 
+// 提示：在底部原位置显示一行立体字，盖住底部文字一会儿再换回来（不会和别的内容重叠）
 function toast(text) {
   const el = document.getElementById('toast');
+  const wrap = el.parentElement;
   el.textContent = text;
   el.classList.add('show');
+  wrap.classList.add('toasting');
   clearTimeout(toast.t);
-  toast.t = setTimeout(() => el.classList.remove('show'), 1800);
+  toast.t = setTimeout(() => {
+    el.classList.remove('show');
+    wrap.classList.remove('toasting');
+  }, 1800);
 }
 
 async function setupEasterEgg() {
@@ -95,11 +101,20 @@ async function initPopup() {
 
   await setupEasterEgg();
 
+  // 存下来的状态可能是几分钟前的（比如刚登录完），所以一打开就静默重查一次；
+  // 双击状态卡片也会重查。
+  async function refreshStatus() {
+    document.getElementById('lastRun').textContent = '检测中…';
+    const resp = await chrome.runtime.sendMessage({ type: 'RUN_KEEPALIVE_NOW' });
+    if (resp?.state) renderState(resp.state);
+  }
+  refreshStatus();
+  document.getElementById('statusCard').addEventListener('dblclick', refreshStatus);
+
   const refreshBtn = document.getElementById('refreshNowBtn');
   refreshBtn.addEventListener('click', async () => {
     refreshBtn.textContent = '续期中…';
-    const resp = await chrome.runtime.sendMessage({ type: 'RUN_KEEPALIVE_NOW' });
-    if (resp?.state) renderState(resp.state);
+    await refreshStatus();
     refreshBtn.textContent = isKira()
       ? '续好了，今天也是平静的一天'
       : '已续期 · 之后每 18 分钟自动续';

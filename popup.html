@@ -148,25 +148,36 @@
     .chip::after { content: "↗"; margin-left: auto; color: var(--muted); font-size: 11px; }
     .chip:hover { color: var(--accent); background: var(--accent-soft); }
 
-    footer { margin-top: 12px; text-align: center; font-size: 11px; color: var(--muted); }
-    body.kira #footer { color: var(--ok); }
+    .status { cursor: default; user-select: none; } /* 双击重查，别选中文字 */
 
+    .foot { position: relative; margin-top: 12px; min-height: 26px; display: flex; align-items: center; justify-content: center; }
+    footer { text-align: center; font-size: 11px; color: var(--muted); transition: opacity .15s; }
+    body.kira #footer { color: var(--ok); }
+    .foot.toasting #footer { opacity: 0; }
+
+    /* 提示：底部原位置的立体字 */
     #toast {
-      position: fixed;
-      left: 50%;
-      bottom: 12px;
-      transform: translate(-50%, 8px);
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: var(--btn);
-      color: var(--accent-fg);
-      font-size: 12px;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       white-space: nowrap;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: #a78bfa;
+      text-shadow: 1px 1px 0 #8b5cf6, 2px 2px 0 #7c3aed, 3px 3px 0 #6d28d9, 4px 4px 0 #4c1d95, 5px 6px 10px rgba(76, 29, 149, 0.35);
       opacity: 0;
+      transform: scale(0.8) skewX(-8deg);
       pointer-events: none;
-      transition: opacity .2s, transform .2s;
+      transition: opacity .18s, transform .25s cubic-bezier(.2, 1.6, .4, 1);
     }
-    #toast.show { opacity: 1; transform: translate(-50%, 0); }
+    body.kira #toast {
+      color: #9dffb8;
+      text-shadow: 1px 1px 0 #4ade80, 2px 2px 0 #22c55e, 3px 3px 0 #16a34a, 4px 4px 0 #14532d, 5px 6px 10px rgba(0, 0, 0, 0.5);
+    }
+    #toast.show { opacity: 1; transform: scale(1) skewX(-8deg); }
   </style>
 </head>
 <body>
@@ -176,7 +187,7 @@
     <span id="lastRun">检测中…</span>
   </header>
 
-  <div class="card status">
+  <div class="card status" id="statusCard" title="双击重新检测">
     <div class="row" id="oktaRow"><span class="dot"></span>Okta<span class="state">—</span></div>
     <div class="row" id="canvasRow"><span class="dot"></span>Canvas<span class="state">—</span></div>
     <div class="row" id="proxyRow"><span class="dot"></span>图书馆代理页<span class="state">0 个</span></div>
@@ -192,8 +203,10 @@
     <button class="chip link" data-url="https://canvas.sydney.edu.au/">Canvas</button>
   </div>
 
-  <footer id="footer">不存储任何账号密码 · 非悉尼大学官方工具</footer>
-  <div id="toast"></div>
+  <div class="foot">
+    <footer id="footer">不存储任何账号密码 · 非悉尼大学官方工具</footer>
+    <div id="toast"></div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
