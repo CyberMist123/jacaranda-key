@@ -45,7 +45,7 @@ Click the puzzle icon 🧩 in the toolbar → find **Jacaranda Key** → click t
 
 1. Sign in to Canvas once as usual (https://canvas.sydney.edu.au)
 2. Click the extension icon → click **Refresh now**
-3. The badge shows **ON** while your session is being kept alive. **EXP** means you are not signed in — just sign in once.
+3. **No badge** on the icon means all is well and your session is being kept alive. A grey **EXP** badge means you are not signed in — just sign in once.
 
 ---
 
@@ -71,8 +71,8 @@ Yes, but you need to switch it on (Chrome doesn't run extensions in Incognito by
 `chrome://extensions` → Jacaranda Key → **Details** → turn on **Allow in Incognito**.
 After that, sign-ins in Incognito windows are refreshed every 18 minutes too. When you close all Incognito windows, those sign-ins are cleared as usual — the extension doesn't keep them.
 
-**"We are sorry that we cannot complete your request" after using the proxy?**
-OpenAthens doesn't recognise the site: either the USYD Library doesn't provide that resource through OpenAthens, or the page isn't a resource page (e.g. a sign-in page).
+**The button says "The library doesn't subscribe to this site"?**
+When you click it, the extension first asks the library's OpenAthens whether it knows the site. For sites the library doesn't subscribe to, it tells you right there instead of sending you to an error page. (It only asks when you click — your browsing isn't sent anywhere otherwise.)
 
 **"Manifest file is missing or unreadable" when loading?**
 You selected the wrong folder level. Pick the one that **directly contains `manifest.json`**.
@@ -97,6 +97,7 @@ Download the new version → overwrite the files in your folder → open `chrome
   - `sso.sydney.edu.au` (Okta session refresh)
   - `canvas.sydney.edu.au` (checks whether Canvas is signed in)
   - library proxy pages you already have open on `*.proxy.openathens.net` (keep-alive)
+  - `go.openathens.net` (only when you click "Open this page via the library": it sends the current page's URL to check whether the library has it; no cookies)
 - On web pages it only does two things: ticks "Keep me signed in" on the Okta sign-in page, and selects the UniKey option on OpenAthens.
 - It only changes how long `sso.sydney.edu.au`'s own sign-in cookies are kept (so they survive a browser restart). It doesn't read their contents or send them anywhere. Incognito cookies are left alone.
 - Permissions requested: `alarms` (timer), `storage` (last refresh result), `activeTab` (read the current page's URL when you click the button), `cookies` (the point above), plus access to the sites above.

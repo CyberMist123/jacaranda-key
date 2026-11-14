@@ -126,7 +126,8 @@ async function runKeepAliveTick(trigger = 'alarm') {
   await chrome.storage.local.set({ [STATE_KEY]: state });
 
   const on = oktaActive || canvasActive;
-  await setBadge(on ? 'ON' : 'EXP', on ? '#16a34a' : '#8e8e93');
+  // 一切正常时不显示角标（太显眼）；只有没登录才显示灰色 EXP
+  await setBadge(on ? '' : 'EXP', '#8e8e93');
   return state;
 }
 

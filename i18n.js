@@ -14,6 +14,8 @@ const I18N = {
     proxyBtn: '用图书馆代理打开当前页',
     cannotProxy: '当前页无法代理',
     ownSite: '悉大或图书馆页面，无需代理',
+    proxyChecking: '正在确认图书馆有没有这个资源…',
+    notInLibrary: '图书馆没有订阅这个网站，代理打不开',
     refresh: '立即续期',
     refreshing: '续期中…',
     refreshed: '已续期 · 之后每 18 分钟自动续',
@@ -28,6 +30,8 @@ const I18N = {
     language: '语言',
     langAuto: '跟随浏览器',
     back: '返回',
+    eggTitle: '彩蛋',
+    githubDesc: '源代码、更新与问题反馈',
   },
   en: {
     checking: 'Checking…',
@@ -40,6 +44,8 @@ const I18N = {
     proxyBtn: 'Open this page via the library',
     cannotProxy: "Can't open this page via the library",
     ownSite: 'USYD or library page — no proxy needed',
+    proxyChecking: 'Checking the library has this…',
+    notInLibrary: "The library doesn't subscribe to this site",
     refresh: 'Refresh now',
     refreshing: 'Refreshing…',
     refreshed: 'Refreshed · auto-refreshes every 18 min',
@@ -54,6 +60,8 @@ const I18N = {
     language: 'Language',
     langAuto: 'Follow browser',
     back: 'Back',
+    eggTitle: 'Easter egg',
+    githubDesc: 'Source code, updates and feedback',
   },
   ja: {
     checking: '確認中…',
@@ -66,6 +74,8 @@ const I18N = {
     proxyBtn: '図書館経由でこのページを開く',
     cannotProxy: 'このページは図書館経由で開けません',
     ownSite: 'USYD・図書館のページなので不要です',
+    proxyChecking: '図書館で利用できるか確認中…',
+    notInLibrary: 'このサイトは図書館の契約対象外です',
     refresh: '今すぐ更新',
     refreshing: '更新中…',
     refreshed: '更新しました · 以後 18 分ごとに自動更新',
@@ -80,6 +90,8 @@ const I18N = {
     language: '言語',
     langAuto: 'ブラウザに合わせる',
     back: '戻る',
+    eggTitle: 'イースターエッグ',
+    githubDesc: 'ソースコード・更新情報・フィードバック',
   },
 };
 

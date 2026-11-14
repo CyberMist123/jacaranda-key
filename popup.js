@@ -38,6 +38,23 @@ function whyNotProxyable(url) {
   return '';
 }
 
+// true = OpenAthens 明确说不认识这个资源；查不到（断网、超时）就当认识，照常跳转
+async function libraryDoesNotKnow(target) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const resp = await fetch(target, { credentials: 'omit', cache: 'no-store', signal: controller.signal });
+    if (!resp.url.startsWith('https://go.openathens.net/')) return false; // 已经被转走 = 认识
+    if (resp.status === 404) return true;
+    const html = await resp.text();
+    return /<title>\s*OpenAthens:\s*404|not aware of the resource/i.test(html);
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // 存下来的状态可能是几分钟前的（比如刚登录完），所以一打开就静默重查一次；双击状态卡片也会重查。
 async function refreshStatus() {
   $('lastRun').textContent = t('checking');
@@ -149,7 +166,19 @@ async function setupSettings() {
     $('main').hidden = on;
     $('settings').hidden = !on;
   };
+  // 彩蛋开关：和连点标题 4 下是同一个开关
+  const egg = $('eggToggle');
+  egg.checked = isKira();
+  egg.addEventListener('change', async () => {
+    await applyKira(egg.checked);
+    await chrome.storage.local.set({ kiraMode: egg.checked });
+  });
+  $('githubLink').addEventListener('click', async () => {
+    await chrome.tabs.create({ url: $('githubLink').dataset.url });
+    window.close();
+  });
   $('settingsBtn').addEventListener('click', () => show($('settings').hidden));
+  $('settingsBtn').addEventListener('click', () => { egg.checked = isKira(); });
   $('backBtn').addEventListener('click', () => show(false));
   if (sessionStorage.getItem('jk_open_settings')) {
     sessionStorage.removeItem('jk_open_settings');
@@ -188,8 +217,16 @@ async function initPopup() {
     proxyBtn.textContent = t(reason);
   }
   proxyBtn.addEventListener('click', async () => {
-    if (reason) return;
+    if (reason || proxyBtn.disabled) return;
     const target = `https://go.openathens.net/redirector/sydney.edu.au?url=${encodeURIComponent(tab.url)}`;
+    // 先问一下 OpenAthens 认不认识这个网站（只在点按钮时问，不会每次打开弹窗都把网址发出去）。
+    // 不认识的网站它会返回一个标题为 "OpenAthens: 404" 的页面，与其把人带过去看报错，不如这里直接说。
+    proxyBtn.disabled = true;
+    proxyBtn.textContent = t('proxyChecking');
+    if (await libraryDoesNotKnow(target)) {
+      proxyBtn.textContent = t('notInLibrary');
+      return;
+    }
     await chrome.tabs.update(tab.id, { url: target });
     window.close();
   });

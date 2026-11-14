@@ -97,6 +97,41 @@
     .lang-opt { height: 34px; border-radius: 10px; background: var(--soft); box-shadow: var(--shadow); }
     .lang-opt:hover { color: var(--accent); }
     .lang-opt.active { background: var(--btn); color: var(--accent-fg); font-weight: 600; }
+    #settings .card + .card { margin-top: 10px; }
+
+    .egg-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 4px; cursor: pointer; }
+    .switch {
+      appearance: none;
+      flex-shrink: 0;
+      position: relative;
+      width: 38px;
+      height: 22px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: var(--off);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+      transition: transform .15s;
+    }
+    .switch:checked { background: var(--btn); }
+    .switch:checked::after { transform: translateX(16px); }
+
+    .gh-link { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 10px; padding: 12px 14px; text-align: left; }
+    .gh-link::after { content: "↗"; margin-left: auto; color: var(--muted); font-size: 12px; }
+    .gh-link:hover { color: var(--accent); }
+    .gh-text { display: flex; flex-direction: column; }
+    .gh-text small { font-size: 11px; color: var(--muted); }
 
     /* 卡片：不画边框，只用一层很淡的阴影 */
     .card {
@@ -213,7 +248,7 @@
     <h1 id="title">Jacaranda Key</h1>
     <span id="lastRun" data-i18n="checking">检测中…</span>
     <button class="icon-btn" id="settingsBtn" data-i18n-title="settings" title="设置" aria-label="Settings">
-      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-width="3" d="M12 2.8v2.7M21.2 12h-2.7M12 21.2v-2.7M2.8 12h2.7M18.5 5.5l-1.9 1.9M18.5 18.5l-1.9-1.9M5.5 18.5l1.9-1.9M5.5 5.5l1.9 1.9"/><circle cx="12" cy="12" r="6.2" stroke-width="2"/><circle cx="12" cy="12" r="2.4" stroke-width="2"/></svg>
     </button>
   </header>
 
@@ -250,6 +285,19 @@
         <button class="lang-opt" data-lang="ja">日本語</button>
       </div>
     </div>
+
+    <div class="card settings-card">
+      <label class="egg-row">
+        <span class="label" data-i18n="eggTitle">彩蛋</span>
+        <input type="checkbox" class="switch" id="eggToggle" />
+      </label>
+    </div>
+
+    <button class="card gh-link" id="githubLink" data-url="https://github.com/CyberMist123/jacaranda-key">
+      <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.06-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      <span class="gh-text"><b>GitHub</b><small data-i18n="githubDesc">源代码、更新与问题反馈</small></span>
+    </button>
+
     <button class="secondary" id="backBtn" data-i18n="back">返回</button>
   </section>
 
